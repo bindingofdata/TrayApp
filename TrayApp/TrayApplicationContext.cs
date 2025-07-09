@@ -18,13 +18,18 @@ namespace TrayApp
         private readonly MenuItem _exitMenuItem;
         private readonly ConfigManager _configManager;
         private readonly NotifyIcon _notifyIcon;
+        private readonly string _startUpDirectoryPath;
         private ConfigWindow _configWindow;
 
         public TrayApplicationContext()
         {
+            _startUpDirectoryPath = Path.Combine(
+                Environment.ExpandEnvironmentVariables("%APPDATA%"),
+                _starupStaticPath);
             _configMenuItem = new MenuItem("Settings", new EventHandler(ShowConfig));
             _exitMenuItem = new MenuItem("Exit", new EventHandler(Exit));
             _configManager = new ConfigManager();
+            UpdateStartWithWindows(_configManager.StartWithWindows);
 
             _notifyIcon = new NotifyIcon();
             // Load the icon from embedded resources
@@ -110,6 +115,51 @@ namespace TrayApp
                     _configManager.SaveSettings();
 
                     _notifyIcon.ContextMenu = LoadMenuItems();
+                    UpdateStartWithWindows(_configManager.StartWithWindows);
+                }
+            }
+        }
+
+        private void UpdateStartWithWindows(bool startWithWindows)
+        {
+            string shortcutPath = Path.Combine(_startUpDirectoryPath, "TrayApp.lnk");
+            string exePath = Assembly.GetExecutingAssembly().Location;
+
+            if (startWithWindows)
+            {
+                try
+                {
+                    if (!Directory.Exists(_startUpDirectoryPath))
+                        Directory.CreateDirectory(_startUpDirectoryPath);
+
+                    if (File.Exists(shortcutPath))
+                        return;
+
+                    // Create a shortcut using Windows Script Host
+                    Type wshShellType = Type.GetTypeFromProgID("WScript.Shell");
+                    dynamic wshShell = Activator.CreateInstance(wshShellType);
+                    dynamic shortcut = wshShell.CreateShortcut(shortcutPath);
+                    shortcut.TargetPath = exePath;
+                    shortcut.WorkingDirectory = Path.GetDirectoryName(exePath);
+                    shortcut.WindowStyle = 1;
+                    shortcut.Description = "TrayApp";
+                    shortcut.Save();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to create startup shortcut:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                try
+                {
+                    if (File.Exists(shortcutPath))
+                        File.Delete(shortcutPath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to remove startup shortcut:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -121,5 +171,7 @@ namespace TrayApp
             _notifyIcon.Visible = false;
             Application.Exit();
         }
+
+        private const string _starupStaticPath = @"Microsoft\Windows\Start Menu\Programs\Startup";
     }
 }
