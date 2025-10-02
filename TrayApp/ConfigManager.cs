@@ -10,7 +10,7 @@ namespace TrayApp
     public sealed class ConfigManager
     {
         public bool StartWithWindows { get; set; } = true;
-        public List<MenuItemData> MenuItemData { get; set; } = new List<MenuItemData>();
+        public List<MenuItemData> MenuItemDataList { get; set; } = new List<MenuItemData>();
 
         public ConfigManager()
         {
@@ -36,7 +36,15 @@ namespace TrayApp
                         StartWithWindows = bool.Parse(lineData[1]);
                         break;
                     default:
-                        MenuItemData.Add(new MenuItemData(lineData[0], lineData[1]));
+                        MenuItemData menuItem = new MenuItemData()
+                        {
+                            DisplayName = lineData[0],
+                            FilePath = lineData[1],
+                            Arguments = lineData[2],
+                            WorkingDirectory = lineData[3],
+                        };
+
+                        MenuItemDataList.Add(menuItem);
                         break;
                 }
             }
@@ -52,10 +60,10 @@ namespace TrayApp
             StringBuilder settingsString = new StringBuilder();
             settingsString.AppendLine($"{_startWithWindowsString}{_separatorChar}{StartWithWindows}");
 
-            for (int i = 0; i < MenuItemData.Count; i++)
+            for (int i = 0; i < MenuItemDataList.Count; i++)
             {
-                MenuItemData file = MenuItemData[i];
-                settingsString.AppendLine($"{file.DisplayName}{_separatorChar}{file.FilePath}");
+                MenuItemData file = MenuItemDataList[i];
+                settingsString.AppendLine($"{file.DisplayName}{_separatorChar}{file.FilePath}{_separatorChar}{file.Arguments ?? string.Empty}{_separatorChar}{file.WorkingDirectory ?? string.Empty}");
             }
 
             File.WriteAllText(_settingsFilePath, settingsString.ToString());
@@ -76,14 +84,10 @@ namespace TrayApp
 
     public sealed class MenuItemData
     {
-        public MenuItemData(string displayName, string filePath)
-        {
-            DisplayName = displayName;
-            FilePath = filePath;
-        }
-
         public string DisplayName { get; set; }
         public string FilePath { get; set; }
+        public string Arguments { get; set; }
+        public string WorkingDirectory { get; set; }
 
         public override string ToString() =>
             $"{DisplayName} - {FilePath}";

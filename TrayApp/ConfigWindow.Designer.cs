@@ -36,6 +36,7 @@
             this.moveUpBtn = new System.Windows.Forms.Button();
             this.moveDownBtn = new System.Windows.Forms.Button();
             this.appList = new System.Windows.Forms.CheckedListBox();
+            this.editBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // startWithWindowsChkBox
@@ -62,7 +63,7 @@
             // removeBtn
             // 
             this.removeBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.removeBtn.Location = new System.Drawing.Point(93, 317);
+            this.removeBtn.Location = new System.Drawing.Point(174, 317);
             this.removeBtn.Name = "removeBtn";
             this.removeBtn.Size = new System.Drawing.Size(75, 23);
             this.removeBtn.TabIndex = 3;
@@ -124,12 +125,24 @@
             this.appList.Name = "appList";
             this.appList.Size = new System.Drawing.Size(504, 274);
             this.appList.TabIndex = 0;
+            this.appList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.appList_ItemCheck);
+            // 
+            // editBtn
+            // 
+            this.editBtn.Location = new System.Drawing.Point(93, 317);
+            this.editBtn.Name = "editBtn";
+            this.editBtn.Size = new System.Drawing.Size(75, 23);
+            this.editBtn.TabIndex = 8;
+            this.editBtn.Text = "Edit...";
+            this.editBtn.UseVisualStyleBackColor = true;
+            this.editBtn.Click += new System.EventHandler(this.editBtn_Click);
             // 
             // ConfigWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(559, 351);
+            this.Controls.Add(this.editBtn);
             this.Controls.Add(this.moveDownBtn);
             this.Controls.Add(this.moveUpBtn);
             this.Controls.Add(this.okayBtn);
@@ -155,5 +168,6 @@
         private System.Windows.Forms.Button moveUpBtn;
         private System.Windows.Forms.Button moveDownBtn;
         private System.Windows.Forms.CheckedListBox appList;
+        private System.Windows.Forms.Button editBtn;
     }
 }

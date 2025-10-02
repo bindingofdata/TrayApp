@@ -48,9 +48,9 @@ namespace TrayApp
         private ContextMenu LoadMenuItems()
         {
             ContextMenu menu = new ContextMenu();
-            for (int i = 0; i < _configManager.MenuItemData.Count; i++)
+            for (int i = 0; i < _configManager.MenuItemDataList.Count; i++)
             {
-                MenuItemData menuItemData = _configManager.MenuItemData[i];
+                MenuItemData menuItemData = _configManager.MenuItemDataList[i];
                 menu.MenuItems.Add(new MenuItem(menuItemData.DisplayName, ApplicationClick));
             }
             menu.MenuItems.Add(_configMenuItem);
@@ -64,7 +64,7 @@ namespace TrayApp
                 return;
 
             // Find the corresponding MenuItemData by DisplayName
-            MenuItemData appData = _configManager.MenuItemData.FirstOrDefault(a => a.DisplayName == menuItem.Text);
+            MenuItemData appData = _configManager.MenuItemDataList.FirstOrDefault(a => a.DisplayName == menuItem.Text);
             if (appData == null)
                 return;
 
@@ -90,7 +90,11 @@ namespace TrayApp
                 // Run the application
                 try
                 {
-                    Process.Start(appData.FilePath);
+                    ProcessStartInfo startInfo = new ProcessStartInfo(appData.FilePath);
+                    startInfo.Arguments = appData.Arguments;
+                    startInfo.WorkingDirectory = appData.WorkingDirectory;
+
+                    _ = Process.Start(startInfo);
                 }
                 catch (Exception ex)
                 {
@@ -111,7 +115,7 @@ namespace TrayApp
                 if (_configWindow.ShowDialog() == DialogResult.OK)
                 {
                     _configManager.StartWithWindows = _configWindow.StartWithWindows;
-                    _configManager.MenuItemData = _configWindow.ListItems.ToList();
+                    _configManager.MenuItemDataList = _configWindow.ListItems.ToList();
                     _configManager.SaveSettings();
 
                     _notifyIcon.ContextMenu = LoadMenuItems();

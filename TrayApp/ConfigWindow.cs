@@ -26,17 +26,37 @@ namespace TrayApp
             InitializeComponent();
             _configManager = configManager;
             startWithWindowsChkBox.Checked = _configManager.StartWithWindows;
-            appList.Items.AddRange(configManager.MenuItemData.ToArray());
+            appList.Items.AddRange(configManager.MenuItemDataList.ToArray());
+            editBtn.Enabled = false;
         }
 
         private void addBtn_Click(object sender, EventArgs e)
         {
-            AddProgramForm addProgramForm = new AddProgramForm();
+            ProgramForm addProgramForm = new ProgramForm();
             if (addProgramForm.ShowDialog() == DialogResult.OK)
             {
-                MenuItemData newItem = new MenuItemData(addProgramForm.DisplayName, addProgramForm.FilePath);
+                MenuItemData newItem = new MenuItemData();
+                SetItemInfo(newItem, addProgramForm);
                 appList.Items.Add(newItem);
             }
+        }
+
+        private void editBtn_Click(object sender, EventArgs e)
+        {
+            MenuItemData editMenuItem = appList.CheckedItems.Cast<MenuItemData>().FirstOrDefault();
+            ProgramForm editProgramForm = new ProgramForm(editMenuItem);
+            if (editProgramForm.ShowDialog() == DialogResult.OK)
+            {
+                SetItemInfo(editMenuItem, editProgramForm);
+            }
+        }
+
+        private void SetItemInfo(MenuItemData item, ProgramForm programForm)
+        {
+            item.DisplayName = programForm.DisplayName;
+            item.FilePath = programForm.FilePath;
+            item.Arguments = programForm.Arguments;
+            item.WorkingDirectory = programForm.WorkingDirectory;
         }
 
         private void removeBtn_Click(object sender, EventArgs e)
@@ -81,6 +101,14 @@ namespace TrayApp
             appList.Items.RemoveAt(selectedIndex);
             appList.Items.Insert(selectedIndex + 1, selectedItem);
             appList.SetSelected(selectedIndex + 1, true);
+        }
+
+        private void appList_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (e.NewValue == CheckState.Checked)
+                editBtn.Enabled = appList.CheckedItems.Count == 0;
+            else
+                editBtn.Enabled = appList.CheckedItems.Count == 2;
         }
     }
 }

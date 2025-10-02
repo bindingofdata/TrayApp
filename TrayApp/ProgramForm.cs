@@ -10,16 +10,34 @@ using System.Windows.Forms;
 
 namespace TrayApp
 {
-    public partial class AddProgramForm : Form
+    public partial class ProgramForm : Form
     {
         public string DisplayName => displayNameTxtBox.Text;
         public string FilePath => filePathTxtBox.Text;
+        public string Arguments => argumentsTextBox.Text;
+        public string WorkingDirectory => workingDirectoryTextBox.Text;
 
-        public AddProgramForm()
+        public ProgramForm()
         {
             InitializeComponent();
+            Text = "AddProgramForm";
+            okBtn.Text = "Add";
             KeyPreview = true;
             KeyDown += AddProgramForm_KeyDown;
+        }
+
+        public ProgramForm(MenuItemData initItem)
+        {
+            InitializeComponent();
+            Text = "EditProgramForm";
+            okBtn.Text = "Edit";
+            KeyPreview = true;
+            KeyDown += AddProgramForm_KeyDown;
+
+            displayNameTxtBox.Text = initItem.DisplayName;
+            filePathTxtBox.Text = initItem.FilePath;
+            argumentsTextBox.Text = initItem.Arguments;
+            workingDirectoryTextBox.Text = initItem.WorkingDirectory;
         }
 
         private void AddProgramForm_KeyDown(object sender, KeyEventArgs e)
@@ -28,12 +46,16 @@ namespace TrayApp
                 && !string.IsNullOrWhiteSpace(DisplayName)
                 && !string.IsNullOrWhiteSpace(FilePath))
             {
-                addBtn_Click(sender, e);
+                okBtn_Click(sender, e);
             }
         }
 
-        private void addBtn_Click(object sender, EventArgs e)
+        private void okBtn_Click(object sender, EventArgs e)
         {
+            displayNameTxtBox.Text = displayNameTxtBox.Text.Trim('"');
+            filePathTxtBox.Text = filePathTxtBox.Text.Trim('"');
+            argumentsTextBox.Text = argumentsTextBox.Text.Trim('"');
+            workingDirectoryTextBox.Text = workingDirectoryTextBox.Text.Trim('"');
             DialogResult = DialogResult.OK;
         }
 
